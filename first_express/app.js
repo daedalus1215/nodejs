@@ -21,17 +21,19 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // homepage
 app.get('/', function(req, res) {
-  console.log('!Hello World!');
-  res.render('index', {title: 'YEAH'});
+  console.log('Received request for homepage.');
+  res.render('index', {title: 'Computer Not Working?'});
 });
 
 // about page
 app.get('/about', function(req, res) {
+  console.log('Received request for about page.');
   res.render('about');
 });
 
 // contact page
 app.get('/contact', function(req, res) {
+  console.log('Received request for contact page.');
   res.render('contact');
 });
 

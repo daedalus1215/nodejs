@@ -35,6 +35,36 @@ app.get('/contact', function(req, res) {
   res.render('contact');
 });
 
+app.post('/contact/send', function(req, res) {
+  var transporter = nodemailer.createTransport({
+    service: 'yahoo', 
+    auth: {
+      user: 'ladams1776@yahoo.com',
+      pass: ''
+    }
+  });
+  
+  var mailOptions = {
+    from: 'Larry Adams <ladams1776@yahoo.com>',
+    to: 'ladams14641@yahoo.com',
+    subject: 'Testing website submission',
+    text: 'You have a submission with the following details... Name: '+req.body.name+' Email: '+req.body.email+'Message: '+req.body.message,
+    html: '<p>You have a submission with the following details... Name: '+req.body.name+' Email: '+req.body.email+'Message: '+req.body.message+'</p>'
+  };
+  
+  transporter.sendMail(mailOptions, function(error, info) {
+    if (error) {
+      console.log(error);
+      res.redirect('/');
+    } else {
+      console.log('Message Sent: '+info.response);
+      res.redirect('/');
+    }
+    transporter.close();
+  });
+});
+
+
 // Tells our application to listen on port 3000.
 app.listen(3000);
 console.log("Server is running on port 3000.");

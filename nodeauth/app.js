@@ -4,26 +4,39 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var session = require('express-session');
+var passport = require('passport');
+var localStrategy = require('passport-local');
+var mongoDB = require("mongodb");
+var mongoose = require("mongoose");
+var flash = require("connect-flash");
+var multer = require("multer");
+var pug = require("pug");
+var db = mongoose.connection; // Create the orm object.
+
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
 
-var app = express();
+var app = express(); // Instantiating app variable with express 
+
+    
 
 // view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+app.set('views', path.join(__dirname, 'views')); // Telling the system we are using Jade
+app.set('view engine', 'jade');                  // Telling the system we are using Jade
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+// Middleware stuff
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'))); // We want public to be the static folder.
 
-app.use('/', routes);
-app.use('/users', users);
+app.use('/', routes); // since we are stuffing our routes in ./routes/... we need to use those routes, this is the index route.
+app.use('/users', users); // since we are stuffing our routes in ./routes/... we need to use those routes, this is the index/users route.
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

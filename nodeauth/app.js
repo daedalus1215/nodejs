@@ -1,4 +1,5 @@
 var express = require('express');
+var app = express(); // Instantiating app variable with express 
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
@@ -6,25 +7,30 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
 var passport = require('passport');
+var expressValidator = require('express-validator');
 var localStrategy = require('passport-local');
+var multer = require("multer");
+var upload = multer({dest:'./uploads'});// Handle File uploads
 var mongoDB = require("mongodb");
 var mongoose = require("mongoose");
 var flash = require("connect-flash");
-var multer = require("multer");
+
+
+
+
 var pug = require("pug");
 var db = mongoose.connection; // Create the orm object.
-
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
 
-var app = express(); // Instantiating app variable with express 
 
-    
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views')); // Telling the system we are using Jade
 app.set('view engine', 'jade');                  // Telling the system we are using Jade
+
+
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -35,8 +41,47 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public'))); // We want public to be the static folder.
 
+
+// Middleware for the Validator
+app.use(expressValidator({
+  errorFormatter: function(param, msg, value) {
+    var namespace = param.split('.')
+    , root = namespace.shift()
+    , formParam = root;
+    
+    while(namespace.length) {
+      formParam += '[' + namespace.shift() + ']';
+    }
+    
+    return {
+      param : formParam,
+      msg   : msg,
+      value : value
+    }
+  }
+}));
+
+app.use(require('connect-flash')());
+app.use(function (req, res, next) {
+  res.locals.messages = require('express-messages')(req, res);
+  next();
+});
+
 app.use('/', routes); // since we are stuffing our routes in ./routes/... we need to use those routes, this is the index route.
 app.use('/users', users); // since we are stuffing our routes in ./routes/... we need to use those routes, this is the index/users route.
+
+// Handle Sessions
+app.use(session({
+  secret: 'secret',
+  saveUnitialized: true,
+  resave: true
+})); 
+
+// Passport
+app.use(passport.initialize());
+app.use(passport.session());
+
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
